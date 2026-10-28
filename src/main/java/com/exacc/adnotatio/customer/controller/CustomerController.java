@@ -1,15 +1,23 @@
 package com.exacc.adnotatio.customer.controller;
 
 import com.exacc.adnotatio.common.ApiResponse;
+import com.exacc.adnotatio.cart.dto.CartItemRequest;
+import com.exacc.adnotatio.cart.dto.CartMutationResponse;
+import com.exacc.adnotatio.cart.dto.CartPageResponse;
+import com.exacc.adnotatio.cart.dto.CartQuantityRequest;
+import com.exacc.adnotatio.cart.service.CartService;
 import com.exacc.adnotatio.customer.dto.CustomerRequest;
 import com.exacc.adnotatio.customer.dto.CustomerResponse;
 import com.exacc.adnotatio.customer.service.CustomerService;
+import com.exacc.adnotatio.order.dto.OrderDetailResponse;
+import com.exacc.adnotatio.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,12 +27,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 @RequestMapping("/api/v1/customers")
 @AllArgsConstructor
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final CartService cartService;
+    private final OrderService orderService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<CustomerResponse>>> getAll(
@@ -67,5 +78,51 @@ public class CustomerController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         customerService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/cart/items")
+    public ResponseEntity<ApiResponse<CartPageResponse>> getCartItems(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sort,
+            @RequestParam(required = false) String name
+    ) {
+        return ResponseEntity.ok(ApiResponse.success("Berhasil menampilkan cart",
+                cartService.getItems(id, page, size, sort, name)));
+    }
+
+    @PostMapping("/{id}/cart/items")
+    public ResponseEntity<ApiResponse<CartMutationResponse>> addCartItem(
+            @PathVariable Long id,
+            @Valid @RequestBody CartItemRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
+                "Produk berhasil ditambahkan ke cart", cartService.addItem(id, request)));
+    }
+
+    @DeleteMapping("/{id}/cart/items/{productId}")
+    public ResponseEntity<ApiResponse<CartMutationResponse>> removeCartItem(
+            @PathVariable Long id,
+            @PathVariable Long productId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Produk berhasil dihapus dari cart", cartService.removeItem(id, productId)));
+    }
+
+    @PatchMapping("/{id}/cart/items/{productId}")
+    public ResponseEntity<ApiResponse<CartMutationResponse>> updateCartItem(
+            @PathVariable Long id,
+            @PathVariable Long productId,
+            @Valid @RequestBody CartQuantityRequest request
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Quantity cart berhasil diubah", cartService.updateItem(id, productId, request)));
+    }
+
+    @PostMapping("/{id}/orders")
+    public ResponseEntity<ApiResponse<OrderDetailResponse>> checkout(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
+                "Checkout berhasil", orderService.checkout(id)));
     }
 }

@@ -39,4 +39,5 @@ public class OrderController {
     public ResponseEntity<ApiResponse<OrderDetailResponse>> getOrder(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success("Order berhasil ditemukan", orderService.getOrder(id)));
     }
+
 }

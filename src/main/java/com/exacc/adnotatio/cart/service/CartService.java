@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional
@@ -64,6 +65,11 @@ public class CartService {
         if (!"name".equalsIgnoreCase(sort)) {
             throw new IllegalArgumentException("Sort must be name");
         }
+
+        if (cartRepository.countByCustomer_Id(customerId) == 0) {
+            return new CartPageResponse(List.of(), new CartPageResponse.PageMetadata(size, page, 0, 0));
+        }
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("product.name").ascending());
 
         // 4. Ambil data dari repository

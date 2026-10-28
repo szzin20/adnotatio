@@ -42,6 +42,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class OrderService {
 
+    private static final String DEFAULT_DELIVERY_ID = "EXD";
+
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final CustomerService customerService;
@@ -143,5 +145,9 @@ public class OrderService {
         productRepository.saveAll(products.values());
         cartRepository.deleteAll(cartItems);
         return orderMapper.toDetail(saved);
+    }
+
+    public OrderDetailResponse checkout(Long customerId) {
+        return checkout(customerId, DEFAULT_DELIVERY_ID);
     }
 }

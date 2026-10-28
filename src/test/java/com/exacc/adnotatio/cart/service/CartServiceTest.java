@@ -1,6 +1,7 @@
 package com.exacc.adnotatio.cart.service;
 
 import com.exacc.adnotatio.cart.dto.CartItemRequest;
+import com.exacc.adnotatio.cart.dto.CartPageResponse;
 import com.exacc.adnotatio.cart.dto.CartQuantityRequest;
 import com.exacc.adnotatio.cart.entity.CartItem;
 import com.exacc.adnotatio.cart.mapper.CartMapper;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -48,11 +50,11 @@ class CartServiceTest {
         product.setName("Keyboard");
         product.setUnitsInStock(3);
         product.setDeactivated(false);
-        when(customerService.lockActiveCustomerEntityById(7L)).thenReturn(customer);
     }
 
     @Test
     void addingExistingProductUpdatesQuantityInsteadOfAddingDuplicate() {
+        when(customerService.lockActiveCustomerEntityById(7L)).thenReturn(customer);
         CartItem existing = new CartItem();
         existing.setCustomer(customer);
         existing.setProduct(product);
@@ -69,6 +71,7 @@ class CartServiceTest {
 
     @Test
     void patchCannotUpdateAnItemOwnedByAnotherCustomer() {
+        when(customerService.lockActiveCustomerEntityById(7L)).thenReturn(customer);
         when(cartRepository.findCartItemForCustomer(7L, 12L)).thenReturn(Optional.empty());
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
@@ -80,6 +83,7 @@ class CartServiceTest {
 
     @Test
     void addingUnavailableProductReturnsConflict() {
+        when(customerService.lockActiveCustomerEntityById(7L)).thenReturn(customer);
         product.setUnitsInStock(0);
         when(productRepository.findById(12L)).thenReturn(Optional.of(product));
 
@@ -88,5 +92,18 @@ class CartServiceTest {
 
         assertEquals(HttpStatus.CONFLICT, exception.getStatus());
         verify(cartRepository, never()).save(any(CartItem.class));
+    }
+
+    @Test
+    void emptyCartReturnsAnEmptyPage() {
+        when(customerService.getActiveCustomerEntityById(7L)).thenReturn(customer);
+        when(cartRepository.countByCustomer_Id(7L)).thenReturn(0L);
+
+        CartPageResponse response = cartService.getItems(7L, 0, 10, "name", null);
+
+        assertTrue(response.content().isEmpty());
+        assertEquals(0, response.page().totalElements());
+        assertEquals(0, response.page().totalPages());
+        verify(cartRepository, never()).findCartItemsByCustomerId(any(), any(), any());
     }
 }
