@@ -80,12 +80,12 @@ public class ProductService {
             }
             if (minPrice != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(
-                        root.<Double>get("unitPrice"), minPrice.doubleValue()
+                        root.<java.math.BigDecimal>get("unitPrice"), java.math.BigDecimal.valueOf(minPrice)
                 ));
             }
             if (maxPrice != null) {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(
-                        root.<Double>get("unitPrice"), maxPrice.doubleValue()
+                        root.<java.math.BigDecimal>get("unitPrice"), java.math.BigDecimal.valueOf(maxPrice)
                 ));
             }
             if (minStock != null) {

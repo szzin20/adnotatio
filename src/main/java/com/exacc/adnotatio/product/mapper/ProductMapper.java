@@ -15,6 +15,7 @@ public interface ProductMapper {
     ProductResponse toResponse(Product product);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "version", ignore = true)
     @Mapping(
             target = "name",
             source = "name",
@@ -23,6 +24,7 @@ public interface ProductMapper {
     Product toEntity(ProductRequest request);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "version", ignore = true)
     @Mapping(
             target = "name",
             source = "name",

@@ -90,7 +90,7 @@ public class CartService {
     }
 
     public CartMutationResponse addItem(Long customerId, CartItemRequest request) {
-        Customer customer = customerService.getActiveCustomerEntityById(customerId);
+        Customer customer = customerService.lockActiveCustomerEntityById(customerId);
         Product product = productRepository.findById(request.productId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Product dengan ID " + request.productId() + " tidak ditemukan", HttpStatus.NOT_FOUND));
@@ -110,7 +110,7 @@ public class CartService {
     }
 
     public CartMutationResponse updateItem(Long customerId, Long productId, CartQuantityRequest request) {
-        Customer customer = customerService.getActiveCustomerEntityById(customerId);
+        Customer customer = customerService.lockActiveCustomerEntityById(customerId);
         CartItem item = findCartItem(customerId, productId);
         item.setQuantity(request.quantity());
         CartItem saved = cartRepository.save(item);
@@ -118,7 +118,7 @@ public class CartService {
     }
 
     public CartMutationResponse removeItem(Long customerId, Long productId) {
-        Customer customer = customerService.getActiveCustomerEntityById(customerId);
+        Customer customer = customerService.lockActiveCustomerEntityById(customerId);
         CartItem item = findCartItem(customerId, productId);
         CartMutationResponse response = new CartMutationResponse(
                 cartMapper.toCustomerResponse(customer), cartMapper.toItemResponse(item));

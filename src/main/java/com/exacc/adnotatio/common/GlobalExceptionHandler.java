@@ -3,6 +3,8 @@ package com.exacc.adnotatio.common;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -14,6 +16,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleGlobalException(ResourceNotFoundException exception) {
         return ResponseEntity.status(exception.getStatus())
                 .body(ApiResponse.failure(exception.getMessage()));
+    }
+
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBusinessRule(BusinessRuleException exception) {
+        return ResponseEntity.status(exception.getStatus()).body(ApiResponse.failure(exception.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -31,6 +38,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(
             IllegalArgumentException exception) {
         return ResponseEntity.badRequest().body(ApiResponse.failure(exception.getMessage()));
+    }
+
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class})
+    public ResponseEntity<ApiResponse<Void>> handleMalformedRequest(Exception exception) {
+        return ResponseEntity.badRequest().body(ApiResponse.failure("Format parameter atau request body tidak valid"));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

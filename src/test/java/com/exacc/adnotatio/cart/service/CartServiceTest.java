@@ -48,7 +48,7 @@ class CartServiceTest {
         product.setName("Keyboard");
         product.setUnitsInStock(3);
         product.setDeactivated(false);
-        when(customerService.getActiveCustomerEntityById(7L)).thenReturn(customer);
+        when(customerService.lockActiveCustomerEntityById(7L)).thenReturn(customer);
     }
 
     @Test

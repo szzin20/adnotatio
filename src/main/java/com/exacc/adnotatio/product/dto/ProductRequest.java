@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.math.BigDecimal;
 
 public record ProductRequest(
         @NotBlank(message = "Product name is required")
@@ -18,7 +19,7 @@ public record ProductRequest(
                 value = "9999999999.0",
                 message = "Unit price must not exceed 9999999999"
         )
-        Double unitPrice,
+        BigDecimal unitPrice,
 
         @NotNull(message = "Units in stock is required")
         @Min(value = 0, message = "Units in stock must be at least 0")

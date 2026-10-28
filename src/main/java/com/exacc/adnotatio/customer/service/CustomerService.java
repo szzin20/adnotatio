@@ -92,4 +92,13 @@ public class CustomerService {
                         HttpStatus.NOT_FOUND
                 ));
     }
+
+    /** Locks the customer row to serialize checkout with other customer cart operations. */
+    public Customer lockActiveCustomerEntityById(Long id) {
+        return customerRepository.findActiveByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Customer dengan ID " + id + " tidak ditemukan",
+                        HttpStatus.NOT_FOUND
+                ));
+    }
 }

@@ -6,9 +6,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -24,14 +27,18 @@ public class Product {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
-    @Column(name = "price", nullable = false)
-    private Double unitPrice;
+    @Column(name = "price", nullable = false, precision = 12, scale = 2)
+    private BigDecimal unitPrice;
 
     @Column(name = "stock", nullable = false)
     private Integer unitsInStock;
 
     @Column(name = "deactivated", nullable = false)
     private Boolean deactivated;
+
+    @Version
+    @Column(nullable = false, columnDefinition = "bigint default 0")
+    private Long version;
 
 }
 

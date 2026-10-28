@@ -8,10 +8,16 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 
 import java.util.Optional;
 
 public interface CartRepository extends JpaRepository<CartItem, CartId> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT ci FROM CartItem ci WHERE ci.customer.id = :customerId")
+    java.util.List<CartItem> findAllByCustomerIdForUpdate(@Param("customerId") Long customerId);
 
     Optional<CartItem> findByCustomer_IdAndProduct_Id(
             Long customerId,
