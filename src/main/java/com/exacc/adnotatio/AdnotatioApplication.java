@@ -1,0 +1,13 @@
+package com.exacc.adnotatio;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class AdnotatioApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(AdnotatioApplication.class, args);
+	}
+
+}
