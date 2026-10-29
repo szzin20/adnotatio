@@ -1,21 +1,16 @@
 
 package com.exacc.adnotatio.cart.entity;
 
+import lombok.RequiredArgsConstructor;
+
 import java.io.Serializable;
 import java.util.Objects;
 
+@RequiredArgsConstructor
 public class CartId implements Serializable {
 
     private Long customer;
     private Long product;
-
-    public CartId() {
-    }
-
-    public CartId(Long customer, Long product) {
-        this.customer = customer;
-        this.product = product;
-    }
 
     @Override
     public boolean equals(Object o) {

@@ -60,6 +60,31 @@ public class OrderService {
             LocalDate fromDate,
             LocalDate toDate
     ) {
+        return getOrders(page, size, sort, id, fromDate, toDate, null);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderPageResponse getOrdersForCustomer(
+            Long customerId,
+            int page,
+            int size,
+            String sort,
+            Long id,
+            LocalDate fromDate,
+            LocalDate toDate
+    ) {
+        return getOrders(page, size, sort, id, fromDate, toDate, customerId);
+    }
+
+    private OrderPageResponse getOrders(
+            int page,
+            int size,
+            String sort,
+            Long id,
+            LocalDate fromDate,
+            LocalDate toDate,
+            Long customerId
+    ) {
         if (page < 0) throw new IllegalArgumentException("page must be zero or greater");
         if (size < 1 || size > 100) throw new IllegalArgumentException("size must be between 1 and 100");
         Set<String> sortableFields = Set.of("id", "orderDate", "deliveryFee", "totalAmount");
@@ -72,6 +97,7 @@ public class OrderService {
         Specification<Order> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (id != null) predicates.add(cb.equal(root.get("id"), id));
+            if (customerId != null) predicates.add(cb.equal(root.get("customer").get("id"), customerId));
             if (fromDate != null) predicates.add(cb.greaterThanOrEqualTo(root.get("orderDate"), fromDate.atStartOfDay()));
             if (toDate != null) predicates.add(cb.lessThan(root.get("orderDate"), toDate.plusDays(1).atStartOfDay()));
             return cb.and(predicates.toArray(Predicate[]::new));
@@ -88,6 +114,15 @@ public class OrderService {
         Order order = orderRepository.findDetailedById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Order dengan ID " + id + " tidak ditemukan", HttpStatus.NOT_FOUND));
+        return orderMapper.toDetail(order);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderDetailResponse getOrderForCustomer(Long orderId, Long customerId) {
+        Order order = orderRepository.findDetailedById(orderId)
+                .filter(candidate -> candidate.getCustomer().getId().equals(customerId))
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Order dengan ID " + orderId + " tidak ditemukan", HttpStatus.NOT_FOUND));
         return orderMapper.toDetail(order);
     }
 

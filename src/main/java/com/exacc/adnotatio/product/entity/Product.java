@@ -36,10 +36,6 @@ public class Product {
     @Column(name = "deactivated", nullable = false)
     private Boolean deactivated;
 
-    @Version
-    @Column(nullable = false, columnDefinition = "bigint default 0")
-    private Long version;
-
 }
 
 
