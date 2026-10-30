@@ -14,6 +14,17 @@ VALUES
     (3, 'Charles', 'Lee', '08123456783', 'charles@gmail.com', FALSE)
 ON CONFLICT (id) DO NOTHING;
 
+-- Development-only seller account. Password is BCrypt for SellerDemo123!.
+INSERT INTO users (username, password)
+VALUES ('seller', '$2a$10$Xv0eWLawbz5b18Iox.Lo7eH0BacfaZr4/.0qvhVEHMHs9s6tnaFJy')
+ON CONFLICT (username) DO NOTHING;
+
+INSERT INTO user_roles (user_id, role)
+SELECT id, 'SELLER'
+FROM users
+WHERE username = 'seller'
+ON CONFLICT (user_id) DO NOTHING;
+
 INSERT INTO regions (id, name)
 VALUES
     (1, 'North'),
